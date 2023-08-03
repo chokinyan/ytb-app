@@ -1,9 +1,11 @@
 # ytb-app
 
-before use add:
+launch without vs code:
 
-my-electron-app/node_modules/electron/dist/electron.exe
+use cmd
 
-you can download the file her :
+cd my-electron-app && npm start
 
-https://drive.google.com/drive/folders/12CRFQFkF-jBSGChqUMq1jNoT4QN41WKd?usp=sharing
+with vs code use debug mode with launch:
+
+![1691060475307](image/README/1691060475307.png)
