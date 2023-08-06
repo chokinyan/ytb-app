@@ -1,4 +1,4 @@
-const {app,BrowserWindow,webContents} = require('electron');
+const {app,BrowserWindow} = require('electron');
 const path = require('path');
 let window = null;
 
@@ -14,7 +14,7 @@ const loadwin = ()=>{
         },
         autoHideMenuBar : true,
         title : "Youtbe musique app",
-        icon : path.join(__dirname,'unnamed.png')
+        icon : path.join(__dirname,'unnamed.ico')
     });
     window.loadURL('https://music.youtube.com/');
 };
@@ -26,5 +26,4 @@ const loadwin = ()=>{
         app.on('activate',()=>{if(BrowserWindow.getAllWindows().length === 0) return 0});
     }).catch(err =>{console.error(err);});
     app.on('window-all-closed',()=>{if(process.platform !== 'darwin') app.quit();});
-    app.on('window-all-closed',()=>{})
 })();
