@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "cd my-electron-app && npm start",
+            "command": "cd my-electron-app; npm start",
             "name": "Launch",
             "request": "launch",
             "type": "node-terminal",
