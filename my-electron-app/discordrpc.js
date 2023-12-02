@@ -1,33 +1,22 @@
-const drpc = async ()=>{
-    const discordR = require('discord-rpc');
-    const {client_sid,client_id} = require('./config.json');
-    const rich = new discordR.Client({transport : 'ipc'});
-    discordR.register(client_id);
-    const acti = async (st)=>{
-        if(!rich){
-            console.error("perso err");
-        };
-        if(rich.application !== undefined){
-            console.log(rich);
-        }
-        console.log(rich);
-        rich.setActivity({
-            details : `Utilise youtube`,
-            state : `${st}`,
-            startTimestamp : Date.now(),
-            largeImageKey : 'image_2023-07-18_163423094',
-            largeImageText : 'test img.',
-            instance : false,
-        })
+const discordR = require('discord-rpc');
+
+const drpc = async (rich,st,url)=>{
+
+    if(!rich){
+        console.error("perso err");
     };
-
-    rich.on('ready',()=>{
-        console.log("ready");
-        acti();
+    await rich.setActivity({
+        details : `Utilise youtube`,
+        state : `Regarde ${st.name}`,
+        startTimestamp : Date.now(),
+        largeImageKey : st.thumbnailUrl.at(0),
+        largeImageText : 'test img.',
+        instance : false,
+        buttons : [{
+            label : "Regarder",
+            url : `${url}`
+        }]
     });
-
-    rich.login({clientId : client_id,clientSecret : client_sid}).catch(err => console.error(err));
-    return rich;
 };
 
 module.exports = {drpc};
