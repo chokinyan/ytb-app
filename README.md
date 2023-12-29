@@ -1,6 +1,6 @@
 # ytb-app
 
-befor launch :
+## befor launch
 
     download elctron.exe here :
 
@@ -10,21 +10,14 @@ befor launch :
 
     my-electron-app\node_modules\electron\dist
 
+## use cmd
 
----
-
-
-
-launch without vs code:
-
-    use cmd:
-
-    cd my-electron-app && npm start
+*     cd my-electron-app && npm start
 
     or
 
-    cd my-electron-app; npm start
+*     cd my-electron-app; npm start
 
-with vs code use debug mode with launch:
+## with vs code use debug mode with launch
 
 ![1691060475307](image/README/1691060475307.png)

@@ -4,8 +4,67 @@ const path = require('path');
 const discordR = require('discord-rpc');
 const {client_sid,client_id} = require('./config.json');
 //-----------------------------------------------------------------------------------------
+
 var icon = path.join(__dirname,'image\\icone\\favicon.ico');
+
 //-----------------------------------------------------------------------------------------
+
+const videoskipad = async (window)=>{
+    await window.webContents.executeJavaScript(
+        `
+        if(document.querySelector("div.ad-showing")){
+            video = document.getElementsByClassName('video-stream html5-main-video')[0];
+            video.currentTime = video.duration;
+        }
+        `
+    );
+};
+const pageskipad = async (window)=>{
+    return await window.webContents.executeJavaScript(
+        `
+        var skip = false;
+        //----------------------------------------------------------------------------------------------------
+        if(document?.querySelector('ytd-promoted-sparkles-web-renderer')){
+            skip = true;
+            document?.querySelector('ytd-promoted-sparkles-web-renderer').remove();
+        }
+        //----------------------------------------------------------------------------------------------------
+        if(document?.querySelector('ytd-action-companion-ad-renderer')){
+            skip = true;
+            document?.querySelector('ytd-action-companion-ad-renderer')?.remove();
+        }
+        //----------------------------------------------------------------------------------------------------
+        if(document?.getElementById('player-ads')){
+            skip = true;
+            document?.getElementById('player-ads')?.remove();
+        }
+        //----------------------------------------------------------------------------------------------------
+        if(document?.querySelector('ytd-ad-slot-renderer')){
+            skip = true;
+            document.querySelector('ytd-ad-slot-renderer')?.remove();
+        }
+        //----------------------------------------------------------------------------------------------------
+        if(document?.querySelector('ytd-compact-promoted-video-renderer')){
+            skip = true;
+            document.querySelector('ytd-compact-promoted-video-renderer')?.remove();
+        }
+        //----------------------------------------------------------------------------------------------------
+        if(document?.querySelector('ytd-banner-promo-renderer')){
+            skip = true;
+            document.querySelector('ytd-banner-promo-renderer').remove();
+        }
+        //-----------------------------------------------------------------------------------------------------
+        if(document?.querySelector('ytd-statement-banner-renderer')){
+            skip = true;
+            document.querySelector('ytd-statement-banner-renderer').remove();
+        }
+        skip;
+        `
+    ).catch((err)=>{
+        console.error(err);
+    })
+};
+
 const norpc = (rich)=>{
     if(!rich){
         console.error("perso err");
@@ -20,6 +79,16 @@ const norpc = (rich)=>{
     });
 };
 
+const pip = async (window)=>{
+    await window.webContents.executeJavaScript(
+        `
+            for(video of document.getElementsByTagName('video')){
+                video.requestPictureInPicture()
+            }
+        `
+    );
+};
+
 const loadwin = ()=>{
     const window = new BrowserWindow({
         width : 1000,
@@ -27,10 +96,10 @@ const loadwin = ()=>{
         minHeight : 200,
         minWidth : 200,
         webPreferences : {
-            devTools : false,
+            devTools : true,
             nodeIntegrationInWorker : true
         },
-        title : "Youtbe",
+        title : "Youtube",
         icon : icon,
     });
 
@@ -48,6 +117,12 @@ const bar = (window)=>{
             click : ()=>{window.isVisible() ? 0 : window.show()}
         }),
         new MenuItem({
+            label : "pic and pic",
+            type : "normal",
+            checked : false,
+            click : ()=>{pip(window)}
+        }),
+        new MenuItem({
             label : 'Quitter',
             type : 'normal',
             click : ()=>{app.exit()}
@@ -57,31 +132,26 @@ const bar = (window)=>{
     tray.setContextMenu(contextmenu);
     return tray;
 };
+
 //-----------------------------------------------------------------------------------------
 (() =>{
     app.whenReady().then(async ()=>{
         const window = loadwin();
         //-------------------------------------------------------------
+        
         const tray = bar(window);
+
         //-------------------------------------------------------------
+
         const rich = new discordR.Client({transport : 'ipc'});
         discordR.register(client_id);
         rich.on('ready',()=>{
             norpc(rich);
         });
         rich.login({clientId : client_id,clientSecret : client_sid}).catch(err => console.error(err));
+
         //-------------------------------------------------------------
 
-        //window.webContents.on('update-target-url',(e)=>{
-        //    if(!(window.webContents.getURL().startsWith('https://www.youtube.com/')) && !(window.menuBarVisible)){
-        //        window.setAutoHideMenuBar(false);
-        //        window.setMenuBarVisibility(true);
-        //    }
-        //    else{
-        //        window.setAutoHideMenuBar(true);
-        //        window.setMenuBarVisibility(false);
-        //    }
-        //});
         window.webContents.on('media-started-playing',async ()=>{
             if(window.webContents.getURL().startsWith('https://www.youtube.com/watch')){
                 await window.webContents.executeJavaScript(
@@ -97,6 +167,7 @@ const bar = (window)=>{
                     data;
                     `
                 ).then(async (data)=>{
+                    await videoskipad(window);
                     if(data.name != undefined){await drpc(rich,data,window.webContents.getURL())}
                 }).catch((err)=>{console.error(err)});
             }
@@ -104,7 +175,19 @@ const bar = (window)=>{
         window.webContents.on('media-paused',()=>{
                 norpc(rich);
         });
+        window.on('enter-html-full-screen',(event)=>{
+            window.setMenuBarVisibility(false);
+        });
+        window.on('leave-html-full-screen',(event)=>{
+            window.setMenuBarVisibility(true);
+        });
+        window.webContents.on('update-target-url',async (event)=>{
+            event.preventDefault();
+            await pageskipad(window);
+        })
+
         //---------------------------------------------------------------------------------
+
         window.on('close',(event)=>{
             event.preventDefault();
             window.hide();
@@ -116,4 +199,7 @@ const bar = (window)=>{
         });
     })
     .catch(err =>{console.error(err)});
+    app.on('quit',(event)=>{
+        
+    })
 })();
